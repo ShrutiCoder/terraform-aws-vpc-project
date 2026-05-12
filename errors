@@ -1,0 +1,227 @@
+Terraform + GitHub Troubleshooting Notes
+Errors Faced During Terraform AWS VPC Project
+
+This document contains practical troubleshooting scenarios faced while building and pushing the Terraform AWS VPC project to GitHub.
+
+These are real-world issues commonly faced by Cloud/DevOps engineers.
+
+1. EC2 SSH Permission Denied Error
+Error
+ec2-user@10.0.11.242: Permission denied (publickey,gssapi-keyex,gssapi-with-mic)
+Cause
+
+Connected from Bastion Host to private EC2 without providing the SSH private key.
+
+The bastion server did not contain the PEM key required for authentication.
+
+Solution
+
+Copied PEM key to Bastion Host using:
+
+scp -i terraform-key.pem terraform-key.pem ec2-user@<BASTION_PUBLIC_IP>:/home/ec2-user/
+
+Set correct permissions:
+
+chmod 400 terraform-key.pem
+
+Connected again:
+
+ssh -i terraform-key.pem ec2-user@10.0.11.242
+Learning
+Bastion host acts as jump server
+Private instances require proper SSH authentication
+SSH keys need correct permissions
+Common enterprise access pattern
+2. DynamoDB Billing Mode Error
+Error
+billing_mode = "PAY-PER-REQUEST"
+
+Terraform validation failed.
+
+Cause
+
+Incorrect billing mode format used.
+
+Terraform expects underscore (_) instead of hyphen (-).
+
+Solution
+
+Corrected to:
+
+billing_mode = "PAY_PER_REQUEST"
+Learning
+
+Terraform values are case-sensitive and syntax-sensitive.
+
+3. DynamoDB Attribute Type Error
+Error
+expected type to be one of ["S" "N" "B"], got s
+Cause
+
+Used lowercase "s" instead of uppercase "S" for DynamoDB attribute type.
+
+Solution
+
+Corrected:
+
+type = "S"
+Learning
+
+DynamoDB supports:
+
+"S" → String
+"N" → Number
+"B" → Binary
+
+Values are case-sensitive.
+
+4. S3 Bucket Already Exists Error
+Error
+BucketAlreadyExists
+Cause
+
+S3 bucket names are globally unique across all AWS accounts.
+
+The bucket name was already taken.
+
+Solution
+
+Changed bucket name to unique value:
+
+bucket = "aaru-terraform-backend-2026-001"
+Learning
+
+S3 bucket namespace is global.
+
+Always use unique naming convention:
+
+project name
+environment
+random number/year
+5. Terraform Backend Region Mismatch Error
+Error
+requested bucket from "ap-south-1", actual location "us-east-1"
+Cause
+
+Terraform backend region did not match actual S3 bucket region.
+
+Solution
+
+Updated backend configuration:
+
+region = "us-east-1"
+
+Reinitialized backend:
+
+terraform init -reconfigure
+Learning
+
+Terraform backend region must match S3 bucket region.
+
+6. GitHub Password Authentication Failed
+Error
+Password authentication is not supported for Git operations
+Cause
+
+GitHub no longer supports username/password authentication for Git operations over HTTPS.
+
+Solution
+
+Generated GitHub Personal Access Token (PAT).
+
+Used:
+
+GitHub username
+PAT instead of password
+Learning
+
+Modern GitHub authentication uses:
+
+PAT
+SSH keys
+
+instead of passwords.
+
+7. GitHub 403 Permission Denied Error
+Error
+Permission denied to repository
+Cause
+
+Token lacked proper repository permissions OR old credentials were cached.
+
+Solution
+Generated new token with:
+repo
+
+permission enabled.
+
+Cleared old credentials from Windows Credential Manager.
+Learning
+
+PAT must contain required scopes.
+
+8. Large File Upload Error
+Error
+terraform-provider-aws.exe exceeds GitHub file size limit
+Cause
+
+.terraform/ directory was accidentally committed to Git repository.
+
+This folder contains huge provider binaries.
+
+Solution
+
+Created .gitignore:
+
+.terraform/
+*.tfstate
+*.tfstate.*
+*.pem
+terraform.tfvars
+
+Removed Git history and reinitialized repository:
+
+Remove-Item -Recurse -Force .git
+git init
+Learning
+
+Never upload:
+
+.terraform/
+.tfstate
+.pem
+secrets
+
+Terraform automatically downloads providers during:
+
+terraform init
+9. Confusion Between VS Code and PowerShell
+Issue
+
+Confusion regarding:
+
+where to write code
+where to run commands
+Clarification
+Tool	Purpose
+VS Code	Write/edit files
+PowerShell Terminal	Run Terraform/Git commands
+Learning
+
+Standard DevOps workflow:
+
+VS Code → Write Code
+Terminal → Run Commands
+GitHub → Store Code
+Overall Learning From Project
+
+This project provided hands-on experience with:
+
+Area	Skills Learned
+Terraform	IaC provisioning
+AWS Networking	VPC, Subnets, NAT, Bastion
+Remote Backend	S3 + DynamoDB
+Git	Version control
+GitHub	Repository management
+SSH	Bastion access
+Troubleshooting	Real-world debugging
