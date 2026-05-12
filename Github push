@@ -1,0 +1,216 @@
+GitHub Push Workflow for Terraform Projects Using VS Code
+
+This is a practical step-by-step notes document for pushing Terraform code to GitHub using Visual Studio Code and PowerShell terminal.
+
+1. Basic Understanding
+Tool	Purpose
+VS Code	Write and edit code
+PowerShell Terminal	Run Git and Terraform commands
+Git	Version control
+GitHub	Remote code repository
+2. Open Project in VS Code
+
+Open project folder:
+
+terraform-aws-vpc-project
+3. Open Terminal in VS Code
+
+In VS Code:
+
+Terminal → New Terminal
+
+You will see PowerShell terminal at the bottom.
+
+Example:
+
+PS D:\Devops_Tutorial\Terraform\terraform-aws-vpc-project>
+4. Create .gitignore
+
+Create a file named:
+
+.gitignore
+
+Add:
+
+# Terraform
+.terraform/
+*.tfstate
+*.tfstate.*
+crash.log
+
+# Variable files
+terraform.tfvars
+*.tfvars
+
+# Sensitive files
+*.pem
+*.key
+
+# Terraform lock file
+.terraform.lock.hcl
+
+# OS files
+.DS_Store
+Thumbs.db
+5. Why .gitignore Is Important
+
+Never upload:
+
+File/Folder	Reason
+.terraform/	Large provider binaries
+.tfstate	Infrastructure state data
+.pem	Private SSH keys
+terraform.tfvars	Sensitive values
+6. Initialize Git Repository
+
+Run:
+
+git init
+7. Add Files to Git
+
+Run:
+
+git add .
+8. Verify Files Before Commit
+
+Run:
+
+git status
+
+Verify:
+
+.terraform/ should NOT appear
+.tfstate should NOT appear
+9. Commit Files
+
+Run:
+
+git commit -m "Initial Terraform VPC project"
+10. Create Repository in GitHub
+
+Go to:
+
+GitHub New Repository Page
+
+Repository name example:
+
+terraform-aws-vpc-project
+11. Rename Branch to Main
+
+Run:
+
+git branch -M main
+12. Connect Local Repository to GitHub
+
+Run:
+
+git remote add origin https://github.com/ShrutiCoder/terraform-aws-vpc-project.git
+13. Push Code to GitHub
+
+Run:
+
+git push -u origin main
+14. GitHub Authentication
+
+GitHub no longer supports password authentication.
+
+Use:
+
+Personal Access Token (PAT)
+
+instead of GitHub password.
+
+15. Create GitHub Personal Access Token
+
+Go to:
+
+GitHub Personal Access Tokens
+
+Steps:
+
+Generate new token (classic)
+
+Enable:
+
+repo
+Generate token
+Copy token immediately
+16. During Git Push
+
+When prompted:
+
+Username
+ShrutiCoder
+Password
+
+Paste:
+
+Personal Access Token
+NOT GitHub password
+17. Common Errors and Fixes
+Error: Password authentication is not supported
+Solution
+
+Use Personal Access Token instead of GitHub password.
+
+Error: Permission denied (403)
+Solution
+Enable repo permission in token
+Clear old credentials from Windows Credential Manager
+Error: Large files detected
+Cause
+
+.terraform/ folder uploaded.
+
+Solution
+
+Add .terraform/ to .gitignore.
+
+Error: BucketAlreadyExists
+Cause
+
+S3 bucket names are globally unique.
+
+Solution
+
+Use unique bucket name.
+
+18. Useful Git Commands
+Command	Purpose
+git init	Initialize repository
+git add .	Add files
+git status	Check changes
+git commit -m "msg"	Commit changes
+git push	Upload code
+git pull	Download latest code
+git remote -v	Check remote URL
+19. Recommended Terraform Project Structure
+terraform-aws-vpc-project/
+│
+├── main.tf
+├── variables.tf
+├── outputs.tf
+├── provider.tf
+├── README.md
+├── .gitignore
+│
+├── environments/
+│   ├── dev/
+│   ├── prod/
+│
+└── modules/
+20. Real DevOps Workflow
+VS Code → Write Code
+       ↓
+PowerShell Terminal → Run Terraform/Git Commands
+       ↓
+Git → Version Control
+       ↓
+GitHub → Store & Share Code
+21. Best Practices
+Best Practice	Why Important
+Use .gitignore	Prevent sensitive uploads
+Use remote backend	Team collaboration
+Commit frequently	Easier rollback
+Use meaningful commit messages	Better tracking
+Never upload secrets	Security
